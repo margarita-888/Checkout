@@ -16,7 +16,7 @@ namespace MyStore.Data
             new Product{ ProductCode = "4", ProductName = "Cheddar cheese", PricePerUnit=8.80, Unit="ea" },
             new Product{ ProductCode = "5",  ProductName = "Butter", PricePerUnit=5.00, Unit="ea" },
             new Product{ ProductCode = "6",  ProductName = "Milk", PricePerUnit=4.60, Unit="ea" },
-            new Product{ ProductCode = "7",  ProductName = "Salmon", PricePerUnit=12.00, Unit="pk"  },
+            new Product{ ProductCode = "z",  ProductName = "Salmon", PricePerUnit=12.00, Unit="pk"  },
             new Product{ ProductCode = "8",  ProductName = "Chicken", PricePerUnit=10.50, Unit="ea", Discount = 1.00 },
             new Product{ ProductCode = "9",  ProductName = "Pistachio", PricePerUnit=8.00, Unit="pk", Discount = 3.00 },
         };
