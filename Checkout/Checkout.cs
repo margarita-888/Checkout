@@ -9,13 +9,15 @@ namespace MyStore
 {
     public class Checkout
     {
-        public List<Product> ScannedProducts { get; private set; }
+        private readonly List<Product> scannedProducts = new List<Product>();
 
         public double TotalAmount { get; private set; }
+        public double TotalSaved { get; private set; }
+
+        private ProductRepository _repo;
 
         public Checkout()
         {
-            ScannedProducts = new List<Product>();
         }
 
         public void Scan(string productCode)
@@ -26,19 +28,27 @@ namespace MyStore
                 return;
             }
 
-            var product = ProductRepository.GetProduct(productCode);
+            try
+            {
+                var product = ProductRepository.GetProduct(productCode);
 
-            if (product == null)
-                return;
+                if (product == null)
+                    return;
 
-            ScannedProducts.Add(product);
-            if (product.Discount.HasValue)
-                Console.WriteLine(product.ProductDescription + " " + product.DiscountDescription);
-            else
-                Console.WriteLine(product.ProductDescription);
-            UpdateTotal(productCode);
+                scannedProducts.Add(product);
+                if (product.Discount.HasValue)
+                    Console.WriteLine(product.ProductDescription + " " + product.DiscountDescription);
+                else
+                    Console.WriteLine(product.ProductDescription);
+                UpdateTotal(productCode);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Checkout::Scan. Error {ex}.");
+            }
         }
 
+        // Total amount is calculated by adding product price to the existing total, minus any discount whether product or volume if the volume quantity has been reached
         public void UpdateTotal(string productCode)
         {
             if (string.IsNullOrEmpty(productCode))
@@ -47,17 +57,34 @@ namespace MyStore
                 return;
             }
 
-            var product = ProductRepository.GetProduct(productCode);
-
-            if (product == null)
-                return;
-
-            TotalAmount += product.PricePerUnit;
-
-            if (IsVolumeDiscountQuantityReached(product))
+            try
             {
-                TotalAmount -= product.VolumeDiscount;
-                Console.WriteLine(product.VolumeDealDescription);
+                var product = ProductRepository.GetProduct(productCode);
+
+                if (product == null)
+                {
+                    Console.WriteLine($"Product with code {productCode} was not found.");
+                    return;
+                }
+
+                TotalAmount += product.PricePerUnit;
+
+                if (product.Discount.HasValue)
+                {
+                    TotalAmount -= product.Discount.Value;
+                    TotalSaved += product.Discount.Value;
+                }
+
+                if (IsVolumeDiscountQuantityReached(product))
+                {
+                    TotalAmount -= product.VolumeDiscount;
+                    TotalSaved += product.VolumeDiscount;
+                    Console.WriteLine(product.VolumeDealDescription);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Checkout::UpdateTotal. Error {ex}.");
             }
         }
 
@@ -66,17 +93,27 @@ namespace MyStore
             return TotalAmount;
         }
 
+        public double GetTotalSavings()
+        {
+            return TotalSaved;
+        }
+
         private int ProductScannedCount(string productCode)
         {
             if (string.IsNullOrEmpty(productCode))
                 return 0;
 
-            var count = ScannedProducts.Where(p => p.ProductName == productCode).Count();
+            var count = scannedProducts.Where(p => p.ProductName == productCode).Count();
             return count;
         }
 
         private bool IsVolumeDiscountQuantityReached(Product product)
         {
+            if (product == null)
+            {
+                return false;
+            }
+
             if (!product.HasVolumeDeal)
                 return false;
 

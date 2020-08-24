@@ -8,32 +8,30 @@ namespace MyStore
 {
     internal class Program
     {
-        private static List<Product> products = ProductRepository.Products;
+        private static List<Product> products = ProductRepository.GetProducts().ToList();
 
         private static void Main(string[] args)
         {
             Console.WriteLine("Welcome to the Checkout!\nAvailable today:");
-            Console.WriteLine("====================================");
+            Console.WriteLine("=====================================");
             products.ForEach(p => Console.WriteLine(p.ToString()));
-            Console.WriteLine("====================================");
+            Console.WriteLine("=====================================");
 
             Console.WriteLine("To scan your next product enter product code 1,...z,...9 as per list above.\nTo PAY enter P.");
-
+            Checkout checkout = new Checkout();
             try
             {
-                ScanProducts();
+                ScanProduct(checkout);
             }
             catch (Exception)
             {
                 Console.WriteLine("Wrong product code. Try again");
-                ScanProducts();
+                ScanProduct(checkout);
             }
         }
 
-        private static void ScanProducts()
+        private static void ScanProduct(Checkout terminal)
         {
-            Checkout terminal = new Checkout();
-
             var answer = Console.ReadLine().ToLower();
             while (answer != "p")
             {
@@ -45,8 +43,10 @@ namespace MyStore
                 answer = Console.ReadLine().ToLower();
             }
 
-            Console.WriteLine("====================================");
-            Console.Write($"\tTotal: ${string.Format("{0:0.00}", terminal.GetTotal())}\n");
+            Console.WriteLine("=====================================");
+            Console.Write($"\tTotal:\t\t${string.Format("{0:0.00}", terminal.GetTotal())}\n");
+            Console.Write($"\tTotal Saved: \t${string.Format("{0:0.00}", terminal.GetTotalSavings())}\n");
+            Console.WriteLine("=====================================");
         }
     }
 }

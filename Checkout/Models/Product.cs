@@ -43,7 +43,10 @@ namespace MyStore.Models
         {
             get
             {
-                return $"{ProductName} ${string.Format("{0:0.00}", PricePerUnit)}";
+                if (Discount.HasValue)
+                    return $"{ProductName} ${string.Format("{0:0.00}", PricePerUnit - Discount)}";
+                else
+                    return $"{ProductName} ${string.Format("{0:0.00}", PricePerUnit)}";
             }
         }
 
@@ -52,7 +55,7 @@ namespace MyStore.Models
             get
             {
                 if (HasVolumeDeal)
-                    return $"Quantity: {VolumePackDescription}\tDiscount: -${string.Format("{0:0.00}", VolumeDiscount)}";
+                    return $"Quantity: {VolumePackDescription}\tDiscount: ${string.Format("{0:0.00}", VolumeDiscount)}";
                 else return string.Empty;
             }
         }
@@ -62,7 +65,7 @@ namespace MyStore.Models
             get
             {
                 if (Discount.HasValue)
-                    return $"Save ${string.Format("{0:0.00}", Discount)}";
+                    return $"\n\t\t\tSaved: ${string.Format("{0:0.00}", Discount)}";
                 else return string.Empty;
             }
         }
