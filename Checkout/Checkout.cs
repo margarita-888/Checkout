@@ -14,12 +14,6 @@ namespace MyStore
         public double TotalAmount { get; private set; }
         public double TotalSaved { get; private set; }
 
-        private ProductRepository _repo;
-
-        public Checkout()
-        {
-        }
-
         public void Scan(string productCode)
         {
             if (string.IsNullOrEmpty(productCode))
